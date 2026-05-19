@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>GitHub Repo Analyzer AI</title>
+
+  <link rel="stylesheet" href="style.css"/>
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>GitHub Repo Analyzer AI</h1>
+
+    <p class="subtitle">
+      Analyze repositories using AI + n8n automation
+    </p>
+
+    <div class="input-box">
+
+      <input
+        type="text"
+        id="githubUrl"
+        placeholder="Paste GitHub Repository URL..."
+      />
+
+      <button onclick="analyzeRepo()">
+        Analyze Repository
+      </button>
+
+    </div>
+
+    <div id="loading" class="hidden">
+      Analyzing Repository...
+    </div>
+
+    <div id="result" class="result-grid">
+
+      <div class="card">
+
+        <div class="card-top">
+          <div class="icon-box">
+            <i class="fa-regular fa-file-lines"></i>
+          </div>
+
+          <h2>Project Summary</h2>
+        </div>
+
+        <p id="summary">
+          Summary will appear here after analyzing the repository.
+        </p>
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-top">
+          <div class="icon-box">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+
+          <h2>Tech Stack</h2>
+        </div>
+
+        <p id="tech">
+          Technologies used in the project will appear here.
+        </p>
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-top">
+          <div class="icon-box">
+            <i class="fa-solid fa-briefcase"></i>
+          </div>
+
+          <h2>LinkedIn Post</h2>
+        </div>
+
+        <p id="linkedin">
+          Professional LinkedIn content will appear here.
+        </p>
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-top">
+          <div class="icon-box">
+            <i class="fa-solid fa-pen"></i>
+          </div>
+
+          <h2>Resume Bullet Points</h2>
+        </div>
+
+        <p id="resume">
+          Resume-ready bullet points will appear here.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>

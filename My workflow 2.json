@@ -1,0 +1,228 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "analyze-repo",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -992,
+        144
+      ],
+      "id": "e72585f8-2471-48d1-ae9c-811eda6e5adb",
+      "name": "Webhook",
+      "webhookId": "742604a5-3b69-40c4-8f22-5598936692e3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const githubUrl = $json.body.github_url;\n\nconst cleanUrl = githubUrl\n  .replace(/\\/$/, \"\")\n  .replace(\".git\", \"\");\n\nconst parts = cleanUrl.split(\"/\");\n\nconst owner = parts[3];\nconst repo = parts[4];\n\nreturn [\n  {\n    json: {\n      owner,\n      repo\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -784,
+        144
+      ],
+      "id": "e5e0ea5e-55f4-450d-8a5d-29daccafb6e0",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "={{`https://api.github.com/repos/${$json.owner}/${$json.repo}`}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -592,
+        80
+      ],
+      "id": "41c2854e-bbc0-4aff-b54c-e3820a9006b5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "={{`https://raw.githubusercontent.com/${$json.owner}/${$json.repo}/main/README.md`}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -416,
+        288
+      ],
+      "id": "a448a103-85a3-4925-9859-6580914e3472",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -272,
+        112
+      ],
+      "id": "42a29008-1fe2-41c2-8d26-32fb5f3b9461",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = JSON.parse($json.text);\n\nreturn [\n{\njson: {\nsummary: data.summary,\ntechStack: data.techStack.join(\", \"),\nlinkedinPost: data.linkedinPost,\nresumePoints: data.resumePoints.join(\"\\n\")\n}\n}\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        0
+      ],
+      "id": "c15ce01b-c37e-4233-813e-9c9286a6704e",
+      "name": "Format Response"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze this GitHub repository briefly.\n\nRepository:\n{{$json.name}}\n\nDescription:\n{{$json.description}}\n\nReturn ONLY valid JSON:\n\n{\n  \"summary\": \"2-3 line simple summary\",\n  \"techStack\": [\"main technologies used\"],\n  \"linkedinPost\": \"short linkedin caption\",\n  \"resumePoints\": [\n    \"point 1\",\n    \"point 2\"\n  ]\n}\n\nKeep response concise.\nNo explanations.\nNo markdown.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c41083a4-6e7c-4670-9056-dd4684f0adde",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        208
+      ],
+      "id": "761a8035-d32c-4e98-9bea-ec869a905f3d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "BbRxyOFkCAOpGAHb",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "75c74bec-f89e-402e-8009-5d1d2b2ff77c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "240195e8348dd66897cfecd35072af7e8a916b2eab54ce303e2fc6bb2b740316"
+  },
+  "id": "Hb0ynfVZ2zHwCKtI",
+  "tags": []
+}
